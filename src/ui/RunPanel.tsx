@@ -62,7 +62,18 @@ export function RunPanel({ dungeon, update }: { dungeon: Dungeon; update: Update
       )}
       {dungeon.tokens.map((t) => (
         <div key={t.id} className="token-row">
-          <span style={{ flex: 1 }}>{t.name}</span>
+          <input
+            type="text"
+            aria-label="Token name"
+            style={{ flex: 1, minWidth: 0 }}
+            value={t.name}
+            onChange={(e) =>
+              update((d) => ({
+                ...d,
+                tokens: d.tokens.map((x) => (x.id === t.id ? { ...x, name: e.target.value } : x)),
+              }))
+            }
+          />
           <select
             aria-label={`Size of ${t.name}`}
             value={t.size}

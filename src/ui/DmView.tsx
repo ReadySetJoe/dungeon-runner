@@ -32,7 +32,7 @@ export function DmView() {
   }, []);
 
   useEffect(() => {
-    if (dungeon) syncRef.current?.send({ type: 'state', dungeon });
+    syncRef.current?.send(dungeon ? { type: 'state', dungeon } : { type: 'clear' });
   }, [dungeon]);
 
   const flushSave = useCallback(() => {

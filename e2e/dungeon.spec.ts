@@ -109,3 +109,36 @@ test('rejects a non-image file on import', async ({ page }) => {
   });
   await expect(page.getByRole('alert')).toContainText(/not an image/i);
 });
+
+async function importMap(page: Page) {
+  await page.goto('/');
+  await page.getByTestId('import-input').setInputFiles({
+    name: 'map.png',
+    mimeType: 'image/png',
+    buffer: await makePng(page, '#cc3333'),
+  });
+  await camera(page);
+}
+
+test('cell size input can be typed key by key without clamping mid-edit', async ({ page }) => {
+  await importMap(page);
+  const input = page.getByTestId('cell-size');
+  await input.click();
+  await input.selectText();
+  await input.pressSequentially('72');
+  await input.blur();
+  await expect(input).toHaveValue('72');
+});
+
+test('a token can be renamed in Run mode', async ({ page }) => {
+  await importMap(page);
+  await page.getByRole('button', { name: 'Run' }).click();
+  await page.getByTestId('token-input').setInputFiles({
+    name: 'goblin.png',
+    mimeType: 'image/png',
+    buffer: await makePng(page, '#3333cc'),
+  });
+  const name = page.getByLabel('Token name');
+  await name.fill('Goblin King');
+  await expect(name).toHaveValue('Goblin King');
+});

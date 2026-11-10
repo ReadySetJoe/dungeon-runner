@@ -1,6 +1,6 @@
 import type { Dungeon } from '../model/types';
 
-export type SyncMessage = { type: 'request-state' } | { type: 'state'; dungeon: Dungeon };
+export type SyncMessage = { type: 'request-state' } | { type: 'state'; dungeon: Dungeon } | { type: 'clear' };
 
 export interface Sync {
   send(msg: SyncMessage): void;

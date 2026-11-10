@@ -60,8 +60,24 @@ export function HomeScreen({ onOpen }: { onOpen: (d: Dungeon) => void }) {
       {items.length > 0 && <h2>Saved dungeons</h2>}
       {items.map((it) => (
         <div key={it.id} className="room-row">
-          <button onClick={() => loadDungeon(it.id).then((d) => d && onOpen(d))}>{it.name}</button>
-          <button onClick={() => deleteDungeon(it.id).then(refresh)} aria-label={`Delete ${it.name}`}>
+          <button
+            onClick={() =>
+              loadDungeon(it.id)
+                .then((d) => d && onOpen(d))
+                .catch(() => setError('Could not open that dungeon.'))
+            }
+          >
+            {it.name}
+          </button>
+          <button
+            onClick={() => {
+              if (!window.confirm(`Delete "${it.name}"? This cannot be undone.`)) return;
+              deleteDungeon(it.id)
+                .then(refresh)
+                .catch(() => setError('Could not delete that dungeon.'));
+            }}
+            aria-label={`Delete ${it.name}`}
+          >
             Delete
           </button>
         </div>

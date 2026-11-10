@@ -10,6 +10,7 @@ export function PlayerView() {
     const sync = createSync();
     const unsubscribe = sync.subscribe((msg) => {
       if (msg.type === 'state') setDungeon(msg.dungeon);
+      else if (msg.type === 'clear') setDungeon(null);
     });
     sync.send({ type: 'request-state' });
     return () => {

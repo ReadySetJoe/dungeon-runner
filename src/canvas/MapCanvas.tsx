@@ -106,16 +106,30 @@ export function MapCanvas({ dungeon, view, selectedRoomId, interactive = false, 
       if (e.code === 'Space') spaceHeld.current = false;
     };
     window.addEventListener('keydown', down);
+    const blur = () => {
+      spaceHeld.current = false;
+    };
     window.addEventListener('keyup', up);
+    window.addEventListener('blur', blur);
     return () => {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', blur);
     };
   }, [interactive]);
 
   const toWorld = (e: React.PointerEvent) => {
     const r = canvasRef.current!.getBoundingClientRect();
     return screenToWorld(cameraRef.current!, e.clientX - r.left, e.clientY - r.top);
+  };
+
+  const endPointer = (e: React.PointerEvent) => {
+    if (!interactive || !cameraRef.current) return;
+    if (panning.current) {
+      panning.current = null;
+      return;
+    }
+    onPointerRef.current?.({ type: 'up', world: toWorld(e) });
   };
 
   return (
@@ -146,14 +160,9 @@ export function MapCanvas({ dungeon, view, selectedRoomId, interactive = false, 
           }
           onPointerRef.current?.({ type: 'move', world: toWorld(e) });
         }}
-        onPointerUp={(e) => {
-          if (!interactive || !cameraRef.current) return;
-          if (panning.current) {
-            panning.current = null;
-            return;
-          }
-          onPointerRef.current?.({ type: 'up', world: toWorld(e) });
-        }}
+        onPointerUp={endPointer}
+        onPointerCancel={endPointer}
+        onLostPointerCapture={endPointer}
       />
       {interactive && (
         <button
