@@ -4,7 +4,8 @@ import { MapCanvas } from '../canvas/MapCanvas';
 import type { Update } from './DmView';
 import { SetupPanel } from './SetupPanel';
 import { RoomsPanel } from './RoomsPanel';
-import { usePaintInteraction } from './interactions';
+import { RunPanel } from './RunPanel';
+import { usePaintInteraction, useRunInteraction } from './interactions';
 
 type Mode = 'setup' | 'rooms' | 'run';
 const MODES: { id: Mode; label: string }[] = [
@@ -26,6 +27,7 @@ export function EditorScreen({ dungeon, update, onClose }: Props) {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [tool, setTool] = useState<'paint' | 'erase'>('paint');
   const paint = usePaintInteraction(dungeonRef, update, selectedRoomId, tool);
+  const run = useRunInteraction(dungeonRef, update);
 
   return (
     <div className="editor">
@@ -56,14 +58,14 @@ export function EditorScreen({ dungeon, update, onClose }: Props) {
             onToolChange={setTool}
           />
         )}
-        {mode === 'run' && <p>Run mode coming in a later task.</p>}
+        {mode === 'run' && <RunPanel dungeon={dungeon} update={update} />}
       </aside>
       <MapCanvas
         dungeon={dungeon}
         view="dm"
         interactive
         selectedRoomId={mode === 'rooms' ? selectedRoomId : null}
-        onPointer={mode === 'rooms' ? paint : undefined}
+        onPointer={mode === 'rooms' ? paint : mode === 'run' ? run : undefined}
       />
     </div>
   );
