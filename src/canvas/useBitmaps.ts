@@ -20,7 +20,7 @@ export function useBitmaps(items: { id: string; blob: Blob }[]) {
       createImageBitmap(item.blob)
         .then((bmp) => {
           pending.current.delete(item.id);
-          if (!wanted.current.has(item.id)) {
+          if (!wanted.current.has(item.id) || cache.current.has(item.id)) {
             bmp.close();
             return;
           }
@@ -32,6 +32,17 @@ export function useBitmaps(items: { id: string; blob: Blob }[]) {
         });
     }
   }, [items]);
+
+  useEffect(() => {
+    const cached = cache.current;
+    const pend = pending.current;
+    return () => {
+      for (const bmp of cached.values()) bmp.close();
+      cached.clear();
+      pend.clear();
+      wanted.current = new Set();
+    };
+  }, []);
 
   return { bitmaps: cache.current, version };
 }
