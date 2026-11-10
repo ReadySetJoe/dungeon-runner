@@ -35,6 +35,19 @@ export function DmView() {
     if (dungeon) syncRef.current?.send({ type: 'state', dungeon });
   }, [dungeon]);
 
+  const flushSave = useCallback(() => {
+    const d = dungeonRef.current;
+    if (!d || !isStorageAvailable()) return;
+    saveDungeon(d)
+      .then(() => setSaveError(null))
+      .catch(() => setSaveError('Saving failed — recent changes may be lost.'));
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('pagehide', flushSave);
+    return () => window.removeEventListener('pagehide', flushSave);
+  }, [flushSave]);
+
   useEffect(() => {
     if (!dungeon || !isStorageAvailable()) return;
     const timer = setTimeout(() => {
@@ -50,7 +63,10 @@ export function DmView() {
       {!isStorageAvailable() && <div className="banner">Storage is unavailable — nothing will be saved.</div>}
       {saveError && <div className="banner">{saveError}</div>}
       {dungeon ? (
-        <EditorScreen dungeon={dungeon} update={update} onClose={() => setDungeon(null)} />
+        <EditorScreen dungeon={dungeon} update={update} onClose={() => {
+            flushSave();
+            setDungeon(null);
+          }} />
       ) : (
         <HomeScreen onOpen={setDungeon} />
       )}
