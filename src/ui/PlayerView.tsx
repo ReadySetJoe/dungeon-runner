@@ -22,7 +22,7 @@ export function PlayerView() {
   if (!dungeon) return <div className="waiting">Waiting for the DM…</div>;
   return (
     <div className="player-root">
-      <MapCanvas dungeon={dungeon} view="player" />
+      <MapCanvas dungeon={dungeon} view="player" interactive />
     </div>
   );
 }

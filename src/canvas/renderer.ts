@@ -2,6 +2,7 @@ import type { Dungeon } from '../model/types';
 import type { Camera } from '../model/camera';
 import { cellToPixel, gridDimensions, parseCellKey } from '../model/grid';
 import { isTokenVisible } from '../model/rooms';
+import type { Point } from '../model/calibrate';
 
 export interface RenderOptions {
   ctx: CanvasRenderingContext2D;
@@ -13,10 +14,12 @@ export interface RenderOptions {
   camera: Camera;
   view: 'dm' | 'player';
   selectedRoomId?: string | null;
+  /** DM-only crosshair markers in map pixel coordinates (e.g. grid calibration points). */
+  markers?: Point[];
 }
 
 export function renderScene(o: RenderOptions): void {
-  const { ctx, width, height, dungeon, mapImage, tokenImages, camera, view, selectedRoomId } = o;
+  const { ctx, width, height, dungeon, mapImage, tokenImages, camera, view, selectedRoomId, markers } = o;
   const { grid, rooms, tokens, map } = dungeon;
   const cs = grid.cellSize;
 
@@ -107,6 +110,24 @@ export function renderScene(o: RenderOptions): void {
     ctx.strokeStyle = '#fff';
     ctx.stroke();
     ctx.restore();
+  }
+
+  if (view === 'dm' && markers) {
+    const r = 7 / camera.zoom;
+    for (const m of markers) {
+      ctx.beginPath();
+      ctx.moveTo(m.x - 2 * r, m.y);
+      ctx.lineTo(m.x + 2 * r, m.y);
+      ctx.moveTo(m.x, m.y - 2 * r);
+      ctx.lineTo(m.x, m.y + 2 * r);
+      ctx.arc(m.x, m.y, r, 0, Math.PI * 2);
+      ctx.lineWidth = 3 / camera.zoom;
+      ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+      ctx.stroke();
+      ctx.lineWidth = 1.5 / camera.zoom;
+      ctx.strokeStyle = '#ffe14d';
+      ctx.stroke();
+    }
   }
 
   ctx.restore();
