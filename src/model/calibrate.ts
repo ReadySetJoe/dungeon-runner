@@ -20,7 +20,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 export function calibrateGrid(a: Point, b: Point, squares: number): { grid: Grid; clamped: boolean } {
   const n = Math.max(1, Math.round(squares));
   const measured = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y)) / n;
-  const cellSize = clamp(Math.round(measured), MIN_CELL, MAX_CELL);
+  const cellSize = clamp(Math.round(measured * 100) / 100, MIN_CELL, MAX_CELL);
   const wrap = (v: number) => ((v % cellSize) + cellSize) % cellSize;
   return {
     grid: normalizeGrid({
@@ -28,6 +28,6 @@ export function calibrateGrid(a: Point, b: Point, squares: number): { grid: Grid
       offsetX: wrap(Math.min(a.x, b.x)),
       offsetY: wrap(Math.min(a.y, b.y)),
     }),
-    clamped: cellSize !== Math.round(measured),
+    clamped: measured < MIN_CELL || measured > MAX_CELL,
   };
 }

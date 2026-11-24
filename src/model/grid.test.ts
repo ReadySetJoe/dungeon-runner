@@ -44,6 +44,7 @@ describe('grid math', () => {
   it('normalises grids', () => {
     expect(normalizeGrid({ cellSize: 5, offsetX: 0, offsetY: 0 }).cellSize).toBe(10);
     expect(normalizeGrid({ cellSize: 500, offsetX: 0, offsetY: 0 }).cellSize).toBe(200);
-    expect(normalizeGrid({ cellSize: 40.6, offsetX: 100, offsetY: -5 })).toEqual({ cellSize: 41, offsetX: 40, offsetY: 0 });
+    expect(normalizeGrid({ cellSize: 40.6, offsetX: 100, offsetY: -5 })).toEqual({ cellSize: 40.6, offsetX: 40.59, offsetY: 0 });
+    expect(normalizeGrid({ cellSize: 40.456, offsetX: 1.234, offsetY: 0 })).toEqual({ cellSize: 40.46, offsetX: 1.23, offsetY: 0 });
   });
 });

@@ -66,9 +66,9 @@ export function SetupPanel({
         </p>
       )}
       {!measuring && notice && <p role="status">{notice}</p>}
-      <SliderField label="Square size" value={grid.cellSize} min={10} max={200} onChange={(v) => set({ cellSize: v })} testId="cell-size" />
-      <SliderField label="Offset X" value={grid.offsetX} min={0} max={grid.cellSize - 1} onChange={(v) => set({ offsetX: v })} testId="offset-x" />
-      <SliderField label="Offset Y" value={grid.offsetY} min={0} max={grid.cellSize - 1} onChange={(v) => set({ offsetY: v })} testId="offset-y" />
+      <SliderField label="Square size" value={grid.cellSize} min={10} max={200} step={0.01} onChange={(v) => set({ cellSize: v })} testId="cell-size" />
+      <SliderField label="Offset X" value={grid.offsetX} min={0} max={grid.cellSize - 0.01} step={0.1} onChange={(v) => set({ offsetX: v })} testId="offset-x" />
+      <SliderField label="Offset Y" value={grid.offsetY} min={0} max={grid.cellSize - 0.01} step={0.1} onChange={(v) => set({ offsetY: v })} testId="offset-y" />
       <p>
         {cols} × {rows} squares ({map.width} × {map.height} px)
       </p>

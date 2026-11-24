@@ -54,4 +54,11 @@ describe('calibrateGrid', () => {
     expect(r.grid.offsetX).toBe(30);
     expect(r.grid.offsetY).toBe(40);
   });
+
+  it('keeps fractional square sizes to two decimals', () => {
+    // 5 squares spanning 202.5 px -> 40.5 px each
+    const r = calibrateGrid({ x: 10, y: 10 }, { x: 212.5, y: 10 }, 5);
+    expect(r.grid.cellSize).toBe(40.5);
+    expect(r.clamped).toBe(false);
+  });
 });
