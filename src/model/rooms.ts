@@ -27,7 +27,7 @@ export function removeRoom(rooms: Room[], roomId: string): Room[] {
 export function updateRoom(
   rooms: Room[],
   roomId: string,
-  patch: Partial<Pick<Room, 'name' | 'color'>>,
+  patch: Partial<Pick<Room, 'name' | 'color' | 'notes'>>,
 ): Room[] {
   return rooms.map((r) => (r.id === roomId ? { ...r, ...patch } : r));
 }

@@ -37,8 +37,13 @@ export function HomeScreen({ onOpen }: { onOpen: (d: Dungeon) => void }) {
   }
 
   return (
+    <div className="home-bg">
     <div className="home">
-      <h1>Dungeon Runner</h1>
+      <header className="home-title">
+        <h1>Dungeon Runner</h1>
+        <p>Reveal the dark, one room at a time.</p>
+      </header>
+      <div className="card import-card">
       <label>
         Import a map image (webp, png, jpg):{' '}
         <input
@@ -52,15 +57,19 @@ export function HomeScreen({ onOpen }: { onOpen: (d: Dungeon) => void }) {
           }}
         />
       </label>
+      </div>
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-      {items.length > 0 && <h2>Saved dungeons</h2>}
+      {items.length > 0 && (
+        <div className="card">
+      <h2>Saved dungeons</h2>
       {items.map((it) => (
-        <div key={it.id} className="room-row">
+        <div key={it.id} className="saved-row">
           <button
+            className="open"
             onClick={() =>
               loadDungeon(it.id)
                 .then((d) => d && onOpen(d))
@@ -82,6 +91,9 @@ export function HomeScreen({ onOpen }: { onOpen: (d: Dungeon) => void }) {
           </button>
         </div>
       ))}
+        </div>
+      )}
+    </div>
     </div>
   );
 }

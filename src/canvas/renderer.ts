@@ -24,7 +24,7 @@ export function renderScene(o: RenderOptions): void {
   const cs = grid.cellSize;
 
   ctx.save();
-  ctx.fillStyle = view === 'player' ? '#000' : '#1a1a1a';
+  ctx.fillStyle = view === 'player' ? '#000' : '#14110f';
   ctx.fillRect(0, 0, width, height);
   ctx.scale(camera.zoom, camera.zoom);
   ctx.translate(-camera.x, -camera.y);
@@ -94,6 +94,16 @@ export function renderScene(o: RenderOptions): void {
     const img = tokenImages.get(token.imageId);
     ctx.save();
     ctx.globalAlpha = visible ? 1 : 0.5;
+    // Soft drop shadow so tokens lift off the map.
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(p.x + s / 2, p.y + s / 2, s / 2 - 1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
     ctx.beginPath();
     ctx.arc(p.x + s / 2, p.y + s / 2, s / 2 - 1, 0, Math.PI * 2);
     ctx.save();
@@ -106,8 +116,8 @@ export function renderScene(o: RenderOptions): void {
       ctx.fillRect(p.x, p.y, s, s);
     }
     ctx.restore();
-    ctx.lineWidth = 2 / camera.zoom;
-    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2.5 / camera.zoom;
+    ctx.strokeStyle = '#f3d9a4';
     ctx.stroke();
     ctx.restore();
   }

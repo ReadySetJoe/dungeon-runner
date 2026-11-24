@@ -3,6 +3,7 @@ import { newToken, validateImageType } from '../model/dungeon';
 import { defaultTokenCell, toggleReveal } from '../model/rooms';
 import type { Update } from './DmView';
 import { useState } from 'react';
+import { RoomNotes } from './RoomNotes';
 
 export function RunPanel({ dungeon, update }: { dungeon: Dungeon; update: Update }) {
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +30,8 @@ export function RunPanel({ dungeon, update }: { dungeon: Dungeon; update: Update
       <p>Click a room on the map, or use the buttons, to reveal or hide it.</p>
       {dungeon.rooms.length === 0 && <p>No rooms yet. Create some in Rooms mode.</p>}
       {dungeon.rooms.map((room) => (
-        <div key={room.id} className="room-row">
+        <div key={room.id} className="room-block">
+        <div className="room-row">
           <span className="swatch" style={{ background: room.color }} />
           <span style={{ flex: 1 }}>{room.name}</span>
           <button
@@ -38,6 +40,11 @@ export function RunPanel({ dungeon, update }: { dungeon: Dungeon; update: Update
           >
             {room.revealed ? 'Hide' : 'Reveal'}
           </button>
+        </div>
+        <details className="notes-toggle">
+          <summary>{room.notes?.trim() ? 'Notes' : 'Add notes'}</summary>
+          <RoomNotes room={room} update={update} rows={5} />
+        </details>
         </div>
       ))}
 

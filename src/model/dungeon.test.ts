@@ -30,3 +30,18 @@ describe('dungeon factories', () => {
     expect(t.imageId).toBeTruthy();
   });
 });
+
+import { forPlayer } from './dungeon';
+import { createRoom } from './rooms';
+
+describe('forPlayer', () => {
+  it('strips DM-only room notes without mutating the original', () => {
+    const room = { ...createRoom('A', '#f00', 'a'), notes: 'secret door north' };
+    const d = { id: 'x', name: 'n', map: { image: new Blob(), imageId: 'i', width: 1, height: 1 },
+      grid: { cellSize: 50, offsetX: 0, offsetY: 0 }, rooms: [room], tokens: [] };
+    const out = forPlayer(d);
+    expect(JSON.stringify(out.rooms)).not.toContain('secret');
+    expect('notes' in out.rooms[0]).toBe(false);
+    expect(d.rooms[0].notes).toBe('secret door north');
+  });
+});

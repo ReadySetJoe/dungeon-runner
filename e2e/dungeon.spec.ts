@@ -371,3 +371,38 @@ test('player window has its own zoom/pan, keeps it on resize, and never reveals 
   );
   expect(await camera(page)).toEqual(dmCamera);
 });
+
+test('room notes are editable in Rooms and Run mode and never reach the player window', async ({ page, context }) => {
+  await page.goto('/');
+  await page.getByTestId('import-input').setInputFiles({
+    name: 'map.png',
+    mimeType: 'image/png',
+    buffer: await makePng(page, '#cc3333'),
+  });
+  await page.getByRole('button', { name: 'Rooms' }).click();
+  await page.getByTestId('add-room').click();
+
+  // Open the player window and record every state message it receives.
+  await page.getByRole('button', { name: 'Run' }).click();
+  const playerPromise = context.waitForEvent('page');
+  await page.getByRole('button', { name: 'Open player window' }).click();
+  const player = await playerPromise;
+  await player.evaluate(() => {
+    (window as any).__msgs = [];
+    new BroadcastChannel('dungeon-runner-sync').addEventListener('message', (e) =>
+      (window as any).__msgs.push(JSON.stringify(e.data)),
+    );
+  });
+
+  await page.getByRole('button', { name: 'Rooms' }).click();
+  await page.getByRole('button', { name: 'Notes and options for Room 1' }).click();
+  await page.getByLabel('Notes for Room 1').fill('The altar hides a poison needle');
+  await page.getByRole('button', { name: 'Run' }).click();
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(page.getByLabel('Notes for Room 1')).toHaveValue('The altar hides a poison needle');
+  await page.getByLabel('Notes for Room 1').fill('The altar hides a poison needle. DC 15.');
+
+  await expect.poll(() => player.evaluate(() => (window as any).__msgs.length)).toBeGreaterThan(0);
+  const msgs: string[] = await player.evaluate(() => (window as any).__msgs);
+  expect(msgs.join('')).not.toContain('poison');
+});

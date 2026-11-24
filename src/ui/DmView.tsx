@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dungeon } from '../model/types';
+import { forPlayer } from '../model/dungeon';
 import { createSync, type Sync } from '../sync/sync';
 import { isStorageAvailable, saveDungeon } from '../storage/storage';
 import { EditorScreen } from './EditorScreen';
@@ -21,7 +22,7 @@ export function DmView() {
     syncRef.current = sync;
     const unsubscribe = sync.subscribe((msg) => {
       if (msg.type === 'request-state' && dungeonRef.current) {
-        sync.send({ type: 'state', dungeon: dungeonRef.current });
+        sync.send({ type: 'state', dungeon: forPlayer(dungeonRef.current) });
       }
     });
     return () => {
@@ -32,7 +33,7 @@ export function DmView() {
   }, []);
 
   useEffect(() => {
-    syncRef.current?.send(dungeon ? { type: 'state', dungeon } : { type: 'clear' });
+    syncRef.current?.send(dungeon ? { type: 'state', dungeon: forPlayer(dungeon) } : { type: 'clear' });
   }, [dungeon]);
 
   const flushSave = useCallback(() => {

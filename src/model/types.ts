@@ -2,7 +2,7 @@ export type CellKey = `${number},${number}`;
 
 export interface Grid { cellSize: number; offsetX: number; offsetY: number }
 
-export interface Room { id: string; name: string; color: string; cells: CellKey[]; revealed: boolean }
+export interface Room { id: string; name: string; color: string; cells: CellKey[]; revealed: boolean; /** DM-only; never sent to the player window. */ notes?: string }
 
 export interface Token { id: string; name: string; image: Blob; imageId: string; col: number; row: number; size: number }
 

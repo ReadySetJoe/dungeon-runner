@@ -2,6 +2,11 @@ import type { Dungeon, Token } from './types';
 
 export const LARGE_IMAGE_PIXELS = 40_000_000;
 
+/** Copy of the dungeon that is safe to send to the player window (no DM-only data). */
+export function forPlayer(d: Dungeon): Dungeon {
+  return { ...d, rooms: d.rooms.map(({ notes: _notes, ...room }) => room) };
+}
+
 export function validateImageType(type: string): string | null {
   return type.startsWith('image/') ? null : 'That file is not an image. Choose a webp, png or jpg.';
 }
