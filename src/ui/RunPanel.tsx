@@ -7,6 +7,13 @@ import { RoomNotes } from './RoomNotes';
 
 export function RunPanel({ dungeon, update }: { dungeon: Dungeon; update: Update }) {
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggleOpen = (id: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
 
   function addToken(file: File) {
     const typeError = validateImageType(file.type);
@@ -40,11 +47,21 @@ export function RunPanel({ dungeon, update }: { dungeon: Dungeon; update: Update
           >
             {room.revealed ? 'Hide' : 'Reveal'}
           </button>
+          <button
+            className={`chevron${room.notes?.trim() ? ' has-notes' : ''}`}
+            aria-label={`Show or hide ${room.name} notes`}
+            aria-expanded={open.has(room.id)}
+            title={room.notes?.trim() ? 'Notes (has notes)' : 'Notes'}
+            onClick={() => toggleOpen(room.id)}
+          >
+            {open.has(room.id) ? '▴' : '▾'}
+          </button>
         </div>
-        <details className="notes-toggle">
-          <summary>{room.notes?.trim() ? 'Notes' : 'Add notes'}</summary>
-          <RoomNotes room={room} update={update} rows={5} />
-        </details>
+        {open.has(room.id) && (
+          <div className="room-details">
+            <RoomNotes room={room} update={update} rows={5} />
+          </div>
+        )}
         </div>
       ))}
 

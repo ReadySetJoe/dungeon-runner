@@ -398,7 +398,7 @@ test('room notes are editable in Rooms and Run mode and never reach the player w
   await page.getByRole('button', { name: 'Notes and options for Room 1' }).click();
   await page.getByLabel('Notes for Room 1').fill('The altar hides a poison needle');
   await page.getByRole('button', { name: 'Run' }).click();
-  await page.getByText('Notes', { exact: true }).click();
+  await page.getByRole('button', { name: 'Show or hide Room 1 notes' }).click();
   await expect(page.getByLabel('Notes for Room 1')).toHaveValue('The altar hides a poison needle');
   await page.getByLabel('Notes for Room 1').fill('The altar hides a poison needle. DC 15.');
 
