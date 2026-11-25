@@ -1,5 +1,5 @@
 import type { Dungeon, Grid, Room } from '../model/types';
-import { newDungeon } from '../model/dungeon';
+import { newDungeon, newToken } from '../model/dungeon';
 
 export const DEMO_NAME = 'Demo Map';
 export const DEMO_IMAGE_URL = '/demo/demo-map.jpg';
@@ -132,6 +132,38 @@ export const DEMO_ROOMS: Room[] = [
   }
 ];
 
+/** Placeholder tokens: heroes start in the (revealed) Barracks, the villain in his hidden lair. */
+const DEMO_TOKENS = [
+  { name: 'Aria', initial: 'A', color: '#3b82c4', col: 11, row: 14, size: 1 },
+  { name: 'Brom', initial: 'B', color: '#3f9c5a', col: 13, row: 14, size: 1 },
+  { name: 'Malgrath', initial: 'M', color: '#b3262e', col: 11, row: 9, size: 2 },
+];
+
+function drawTokenImage(initial: string, color: string): Promise<Blob> {
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  const g = ctx.createRadialGradient(size * 0.4, size * 0.35, 8, size / 2, size / 2, size * 0.7);
+  g.addColorStop(0, '#ffffff66');
+  g.addColorStop(0.35, color);
+  g.addColorStop(1, '#00000099');
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 72px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 6;
+  ctx.fillText(initial, size / 2, size / 2 + 4);
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not draw demo token.'))), 'image/png'),
+  );
+}
+
 export async function loadDemoDungeon(): Promise<Dungeon> {
   const res = await fetch(DEMO_IMAGE_URL);
   if (!res.ok) throw new Error('Could not load the demo map.');
@@ -139,9 +171,15 @@ export async function loadDemoDungeon(): Promise<Dungeon> {
   const bitmap = await createImageBitmap(image);
   const { width, height } = bitmap;
   bitmap.close();
+  const tokens = await Promise.all(
+    DEMO_TOKENS.map(async (t) =>
+      newToken({ name: t.name, image: await drawTokenImage(t.initial, t.color), col: t.col, row: t.row, size: t.size }),
+    ),
+  );
   return {
     ...newDungeon({ name: DEMO_NAME, image, width, height }),
     grid: { ...DEMO_GRID },
     rooms: DEMO_ROOMS.map((r) => ({ ...r, cells: [...r.cells] })),
+    tokens,
   };
 }

@@ -416,6 +416,8 @@ test('/demo loads the Demo Map with its grid, and does not touch saved dungeons'
   await expect(page.getByTestId('offset-y')).toHaveValue('19.2');
   await page.getByRole('button', { name: 'Rooms' }).click();
   await expect(page.getByLabel('Room name')).toHaveCount(6);
+  await page.getByRole('button', { name: 'Run' }).click();
+  await expect(page.getByLabel('Token name')).toHaveCount(3);
   await page.goto('/');
   await expect(page.getByText('Saved dungeons')).toHaveCount(0);
 });
