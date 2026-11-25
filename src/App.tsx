@@ -2,5 +2,7 @@ import { DmView } from './ui/DmView';
 import { PlayerView } from './ui/PlayerView';
 
 export default function App() {
-  return window.location.pathname.startsWith('/player') ? <PlayerView /> : <DmView />;
+  const path = window.location.pathname;
+  if (path.startsWith('/player')) return <PlayerView />;
+  return <DmView demo={path.startsWith('/demo')} />;
 }

@@ -406,3 +406,16 @@ test('room notes are editable in Rooms and Run mode and never reach the player w
   const msgs: string[] = await player.evaluate(() => (window as any).__msgs);
   expect(msgs.join('')).not.toContain('poison');
 });
+
+test('/demo loads the Demo Map with its grid, and does not touch saved dungeons', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByRole('textbox').first()).toHaveValue('Demo Map');
+  await page.getByRole('button', { name: 'Setup' }).click();
+  await expect(page.getByTestId('cell-size')).toHaveValue('41.13');
+  await expect(page.getByTestId('offset-x')).toHaveValue('34.7');
+  await expect(page.getByTestId('offset-y')).toHaveValue('19.2');
+  await page.getByRole('button', { name: 'Rooms' }).click();
+  await expect(page.getByLabel('Room name')).toHaveCount(6);
+  await page.goto('/');
+  await expect(page.getByText('Saved dungeons')).toHaveCount(0);
+});

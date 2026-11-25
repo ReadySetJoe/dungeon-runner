@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dungeon } from '../model/types';
+import { loadDemoDungeon } from '../demo/demoData';
 import { forPlayer } from '../model/dungeon';
 import { createSync, type Sync } from '../sync/sync';
 import { isStorageAvailable, saveDungeon } from '../storage/storage';
@@ -8,8 +9,10 @@ import { HomeScreen } from './HomeScreen';
 
 export type Update = (fn: (d: Dungeon) => Dungeon) => void;
 
-export function DmView() {
+export function DmView({ demo = false }: { demo?: boolean }) {
   const [dungeon, setDungeon] = useState<Dungeon | null>(null);
+  const [demoError, setDemoError] = useState<string | null>(null);
+  const [showHint, setShowHint] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
   const syncRef = useRef<Sync | null>(null);
   const dungeonRef = useRef(dungeon);
@@ -36,13 +39,20 @@ export function DmView() {
     syncRef.current?.send(dungeon ? { type: 'state', dungeon: forPlayer(dungeon) } : { type: 'clear' });
   }, [dungeon]);
 
+  useEffect(() => {
+    if (!demo) return;
+    loadDemoDungeon().then(setDungeon).catch((e: Error) => setDemoError(e.message));
+  }, [demo]);
+
+  const canSave = !demo && isStorageAvailable();
+
   const flushSave = useCallback(() => {
     const d = dungeonRef.current;
-    if (!d || !isStorageAvailable()) return;
+    if (!d || !canSave) return;
     saveDungeon(d)
       .then(() => setSaveError(null))
       .catch(() => setSaveError('Saving failed — recent changes may be lost.'));
-  }, []);
+  }, [canSave]);
 
   useEffect(() => {
     window.addEventListener('pagehide', flushSave);
@@ -50,14 +60,35 @@ export function DmView() {
   }, [flushSave]);
 
   useEffect(() => {
-    if (!dungeon || !isStorageAvailable()) return;
+    if (!dungeon || !canSave) return;
     const timer = setTimeout(() => {
       saveDungeon(dungeon)
         .then(() => setSaveError(null))
         .catch(() => setSaveError('Saving failed — recent changes may be lost.'));
     }, 500);
     return () => clearTimeout(timer);
-  }, [dungeon]);
+  }, [dungeon, canSave]);
+
+  if (demo) {
+    return (
+      <>
+        {demoError && <div className="banner">{demoError}</div>}
+        {dungeon ? (
+          <>
+            <EditorScreen dungeon={dungeon} update={update} onClose={() => window.location.assign('/')} />
+            {showHint && (
+              <div className="demo-hint" role="note">
+                <span>Demo: open the player window from Run, then click a room to reveal it. Changes aren't saved — reload to reset.</span>
+                <button onClick={() => setShowHint(false)} aria-label="Dismiss hint">✕</button>
+              </div>
+            )}
+          </>
+        ) : (
+          !demoError && <div className="waiting">Loading demo…</div>
+        )}
+      </>
+    );
+  }
 
   return (
     <>
